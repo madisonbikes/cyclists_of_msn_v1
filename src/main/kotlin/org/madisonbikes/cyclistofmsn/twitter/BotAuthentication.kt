@@ -3,19 +3,23 @@ package org.madisonbikes.cyclistofmsn.twitter
 import twitter4j.TwitterException
 import twitter4j.TwitterFactory
 import twitter4j.auth.AccessToken
-
+import java.io.File
 
 class BotAuthentication {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
+            require(args.size ==1) {
+                "Require a single argument of properties file"
+            }
+            Configuration.init(File(args[0]))
             BotAuthentication().register()
         }
     }
 
     private fun register() {
         val twitter = TwitterFactory.getSingleton()
-        twitter.setOAuthConsumer("", "")
+        twitter.setOAuthConsumer(Configuration.consumerApiKey, Configuration.consumerApiSecret)
         val requestToken = twitter.oAuthRequestToken
         var accessToken: AccessToken? = null
 
@@ -39,10 +43,10 @@ class BotAuthentication {
                 }
             }
         }
-        storeAccessToken(twitter.verifyCredentials().id, accessToken)
+        printAccessToken(twitter.verifyCredentials().id, accessToken)
     }
 
-    private fun storeAccessToken(id: Long, accessToken: AccessToken) {
-        println("id=$id, token=$accessToken")
+    private fun printAccessToken(id: Long, accessToken: AccessToken) {
+        println("id=$id, token=${accessToken.token}, tokenSecret=${accessToken.tokenSecret}")
     }
 }
