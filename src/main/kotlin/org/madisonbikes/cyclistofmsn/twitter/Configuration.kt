@@ -4,20 +4,29 @@ import java.io.File
 import java.io.FileInputStream
 import java.util.*
 
-object Configuration {
+class Configuration(propertiesFile: File) {
+    companion object {
+        const val CONSUMER_API_KEY = "cyclistsOfMadison.twitter.consumerApiKey"
+        const val CONSUMER_API_SECRET = "cyclistsOfMadison.twitter.consumerApiSecretKey"
+        const val ACCESS_TOKEN = "cyclistsOfMadison.twitter.accessToken"
+        const val ACCESS_TOKEN_SECRET = "cyclistsOfMadison.twitter.accessTokenSecret"
+        const val PHOTO_DIRECTORY = "cyclistsOfMadison.photoDirectory"
 
-    private lateinit var props: Properties
+        const val MAXIMUM_IMAGE_WIDTH = 1600
+        const val POST_CONTENT = "#cyclistsofmadison"
+    }
 
-    fun init(properties: File) {
-        FileInputStream(properties).use {
-            props = Properties()
+    private val props = Properties()
+
+    init {
+        FileInputStream(propertiesFile).use {
             props.load(it)
         }
     }
 
-    val consumerApiKey by lazy { requireNotNull(props.getProperty("cyclistsOfMadison.twitter.consumerApiKey")) }
-    val consumerApiSecret by lazy { requireNotNull(props.getProperty("cyclistsOfMadison.twitter.consumerApiSecretKey")) }
-    val token by lazy { requireNotNull(props.getProperty("cyclistsOfMadison.twitter.accessToken")) }
-    val tokenSecret by lazy { requireNotNull(props.getProperty("cyclistsOfMadison.twitter.accessTokenSecret")) }
-    val photoDirectory by lazy { File(props.getProperty("cyclistsOfMadison.photoDirectory", "photos")) }
+    val consumerApiKey by lazy { requireNotNull(props.getProperty(CONSUMER_API_KEY)) }
+    val consumerApiSecret by lazy { requireNotNull(props.getProperty(CONSUMER_API_SECRET)) }
+    val token by lazy { requireNotNull(props.getProperty(ACCESS_TOKEN)) }
+    val tokenSecret by lazy { requireNotNull(props.getProperty(ACCESS_TOKEN_SECRET)) }
+    val photoDirectory by lazy { File(props.getProperty(PHOTO_DIRECTORY, "photos")) }
 }
