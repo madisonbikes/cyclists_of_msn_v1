@@ -1,4 +1,4 @@
-package org.madisonbikes.cyclistofmsn.twitter
+package org.madisonbikes.cyclistsofmsn.twitter
 
 import twitter4j.TwitterException
 import twitter4j.TwitterFactory
@@ -12,7 +12,9 @@ class BotAuthentication(private val configuration: Configuration) {
             require(args.size == 1) {
                 "Require a single argument of properties file"
             }
-            val bot = BotAuthentication(Configuration(File(args[0])))
+            val bot = BotAuthentication(
+                Configuration(File(args[0]))
+            )
             bot.register()
         }
     }

@@ -1,4 +1,4 @@
-package org.madisonbikes.cyclistofmsn.twitter
+package org.madisonbikes.cyclistsofmsn.twitter
 
 import twitter4j.StatusUpdate
 import twitter4j.TwitterFactory
@@ -16,7 +16,11 @@ class BotNewPost(private val configuration: Configuration) {
             require(args.size == 1) {
                 "Must supply configuration file argument"
             }
-            BotNewPost(Configuration(File(args[0]))).apply {
+            BotNewPost(
+                Configuration(
+                    File(args[0])
+                )
+            ).apply {
                 val randomPhoto = selectRandomPhoto()
                 println("Selected $randomPhoto")
                 println("resizing...")

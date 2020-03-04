@@ -1,4 +1,4 @@
-package org.madisonbikes.cyclistofmsn.twitter
+package org.madisonbikes.cyclistsofmsn.twitter
 
 import org.apache.commons.codec.digest.DigestUtils
 

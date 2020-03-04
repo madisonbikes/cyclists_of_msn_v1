@@ -1,4 +1,4 @@
-package org.madisonbikes.cyclistofmsn.twitter
+package org.madisonbikes.cyclistsofmsn.twitter
 
 import com.squareup.moshi.*
 import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter

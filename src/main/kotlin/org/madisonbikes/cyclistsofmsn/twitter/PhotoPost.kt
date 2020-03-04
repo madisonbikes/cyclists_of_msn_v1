@@ -1,4 +1,4 @@
-package org.madisonbikes.cyclistofmsn.twitter
+package org.madisonbikes.cyclistsofmsn.twitter
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
