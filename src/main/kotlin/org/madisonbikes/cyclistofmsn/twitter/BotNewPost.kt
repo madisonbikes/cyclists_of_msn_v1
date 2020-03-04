@@ -4,6 +4,8 @@ import twitter4j.StatusUpdate
 import twitter4j.TwitterFactory
 import twitter4j.auth.AccessToken
 import java.io.File
+import java.lang.IllegalStateException
+import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
@@ -14,21 +16,22 @@ class BotNewPost(private val configuration: Configuration) {
             require(args.size == 1) {
                 "Must supply configuration file argument"
             }
-            val bot = BotNewPost(Configuration(File(args[0])))
-
-            val randomPhoto = bot.selectRandomPhoto()
-            println("Selected $randomPhoto")
-            println("resizing...")
-            val resizedPhoto = bot.buildResizedPhoto(randomPhoto)
-            println("posting...")
-            bot.post(resizedPhoto)
-            println("done.")
+            BotNewPost(Configuration(File(args[0]))).apply {
+                val randomPhoto = selectRandomPhoto()
+                println("Selected $randomPhoto")
+                println("resizing...")
+                val resizedPhoto = buildResizedPhoto(randomPhoto)
+                println("posting...")
+                post(resizedPhoto)
+                println("done.")
+            }
         }
     }
 
+    private val postHistory = PostHistory(configuration)
+
     fun buildResizedPhoto(input: File): File {
-        @Suppress("SpellCheckingInspection") val tempPicture =
-            File.createTempFile("cyclistsofmadison", ".${input.extension}")
+        val tempPicture = File.createTempFile("cyclistsofmadison", ".${input.extension}")
         tempPicture.deleteOnExit()
         val args = arrayOf(
             "convert",
@@ -53,8 +56,28 @@ class BotNewPost(private val configuration: Configuration) {
         val files = requireNotNull(photoDirectory.listFiles()) {
             "photo directory $photoDirectory does not exist"
         }
+        require(files.isNotEmpty()) {
+            "photo directory is empty"
+        }
         val randomIndex = Random.nextInt(files.size)
-        return files[randomIndex]
+
+        val dateThreshold = Date(System.currentTimeMillis() - Configuration.MINIMUM_REPOST_INTERVAL_MILLIS)
+
+        val newFiles = files.copyOfRange(randomIndex, files.size) + files.copyOfRange(0, randomIndex)
+        for (f in newFiles) {
+            val hash = Digest.digestUtils.digestAsHex(f)
+            val matchingPost = postHistory.findPostWithHash(hash)
+            if (matchingPost == null || matchingPost.postDate < dateThreshold) {
+                if(matchingPost != null) {
+                    postHistory.removePost(matchingPost)
+                }
+                val newPost = PhotoPost(f.name, hash, Date())
+                postHistory.addPost(newPost)
+                postHistory.store()
+                return f
+            }
+        }
+        throw IllegalStateException("no photos remaining")
     }
 
     fun post(image: File) {
