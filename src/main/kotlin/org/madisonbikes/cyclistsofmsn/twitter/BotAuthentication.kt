@@ -50,7 +50,7 @@ class BotAuthentication(private val configuration: Configuration) {
     }
 
     private fun printAccessToken(accessToken: AccessToken) {
-        println("${Configuration.ACCESS_TOKEN}=${accessToken.token}")
-        println("${Configuration.ACCESS_TOKEN_SECRET}=${accessToken.tokenSecret}")
+        println("${Configuration.PROP_ACCESS_TOKEN}=${accessToken.token}")
+        println("${Configuration.PROP_ACCESS_TOKEN_SECRET}=${accessToken.tokenSecret}")
     }
 }

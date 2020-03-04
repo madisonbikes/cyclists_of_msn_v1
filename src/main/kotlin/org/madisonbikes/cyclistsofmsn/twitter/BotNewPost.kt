@@ -21,6 +21,8 @@ class BotNewPost(private val configuration: Configuration) {
                     File(args[0])
                 )
             ).apply {
+                randomDelay()
+
                 val randomPhoto = selectRandomPhoto()
                 println("Selected $randomPhoto")
                 println("resizing...")
@@ -33,6 +35,14 @@ class BotNewPost(private val configuration: Configuration) {
     }
 
     private val postHistory = PostHistory(configuration)
+
+    fun randomDelay() {
+        if(configuration.postRandomDelay > 0L) {
+            val randomDelay = Random.nextLong(configuration.postRandomDelay)
+            println("Sleeping for $randomDelay seconds out of possible ${configuration.postRandomDelay}")
+            Thread.sleep(TimeUnit.SECONDS.toMillis(randomDelay))
+        }
+    }
 
     fun buildResizedPhoto(input: File): File {
         val tempPicture = File.createTempFile("cyclistsofmadison", ".${input.extension}")
