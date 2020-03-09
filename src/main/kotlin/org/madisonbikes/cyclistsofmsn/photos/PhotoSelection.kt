@@ -11,12 +11,14 @@ class PhotoSelection(private val postHistory: PostHistory, private val configura
         val randomIndex = Random.nextInt(files.size)
 
         val hashMatcher = HashMatcher(postHistory)
-        // list of criteria in descending importance.
-        // If we can't find any photos that match seasonality that haven't been posted,
-        // fall back to unposted photos (any season), then fall back to unposted photos outside of seasonality requirement
 
+        // these are different criteria that can be combined
+
+        // photos that haven't been posted in the last 180 days (configurable)
         val repostCriteria = RepostCriteria(configuration)
+        // photos that have never been posted
         val unpostedCriteria = UnpostedCriteria()
+        // photos that meet the seasonality requirements (defaults to
         val seasonalityCriteria = SeasonalityCriteria(configuration)
 
         /// this is the combination of criteria that will be searched, in order

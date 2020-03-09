@@ -12,7 +12,6 @@ class TwitterConfiguration(propertiesFile: File) : PhotoConfiguration {
         const val PROP_CONSUMER_API_SECRET = "cyclistsOfMadison.twitter.consumerApiSecretKey"
         const val PROP_ACCESS_TOKEN = "cyclistsOfMadison.twitter.accessToken"
         const val PROP_ACCESS_TOKEN_SECRET = "cyclistsOfMadison.twitter.accessTokenSecret"
-        const val PROP_BASE_DIRECTORY = "cyclistsOfMadison.baseDirectory"
 
         const val MAXIMUM_IMAGE_WIDTH = 1600
         const val POST_CONTENT = "#cyclistsofmadison"
@@ -24,7 +23,8 @@ class TwitterConfiguration(propertiesFile: File) : PhotoConfiguration {
     val consumerApiSecret by lazy { requireNotNull(props.getProperty(PROP_CONSUMER_API_SECRET)) }
     val token by lazy { requireNotNull(props.getProperty(PROP_ACCESS_TOKEN)) }
     val tokenSecret by lazy { requireNotNull(props.getProperty(PROP_ACCESS_TOKEN_SECRET)) }
-    val baseDirectory by lazy { File(props.getProperty(PROP_BASE_DIRECTORY, ".")) }
+
+    lateinit var baseDirectory: File
 
     override val photoDirectory by lazy { File(baseDirectory, "photos") }
     override val postsDatabaseFile by lazy { File(baseDirectory, "cyclistsOfMadisonPosts.json") }

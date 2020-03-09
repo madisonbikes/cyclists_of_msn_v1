@@ -24,11 +24,15 @@ class BotNewPost(private val configuration: TwitterConfiguration) {
             argumentParser.addArgument("-c", "--config")
                 .required(true)
                 .type(Arguments.fileType().verifyCanRead())
-                .help("Configuration file")
+                .help("Configuration file contains twitter tokens")
+
+            argumentParser.addArgument("--base-directory")
+                .type(Arguments.fileType().verifyIsDirectory())
+                .help("Base directory for photos and posts database. Defaults to cwd.")
 
             argumentParser.addArgument("--dry-run")
                 .action(Arguments.storeTrue())
-                .help("Dry run, doesn't change anything or post anything.")
+                .help("Dry run, doesn't change anything in posts database or post anything to twitter.")
 
             argumentParser.addArgument("--random-delay")
                 .type(Long::class.java)
@@ -38,12 +42,12 @@ class BotNewPost(private val configuration: TwitterConfiguration) {
             argumentParser.addArgument("--minimum-repost-interval")
                 .type(Int::class.java)
                 .setDefault(180)
-                .help("Minimum interval (in days lapsed) before a photo can be reposted")
+                .help("Target minimum interval (in days) before a photo will be reposted")
 
             argumentParser.addArgument("--seasonality-window")
                 .type(Int::class.java)
-                .setDefault(30)
-                .help("Size of window (in days on either side of current) that we will search for photos")
+                .setDefault(45)
+                .help("Size of window (in days on either side of current date) that we will search for photos that are in-season")
 
             try {
                 val namespace = argumentParser.parseArgs(args)
@@ -52,6 +56,7 @@ class BotNewPost(private val configuration: TwitterConfiguration) {
                 config.dryRun = namespace.getBoolean("dry_run")
                 config.seasonalityWindow = namespace.get("seasonality_window")
                 config.minimumRepostInterval = namespace.get("minimum_repost_interval")
+                config.baseDirectory = (namespace.attrs["base_directory"] as File?) ?: File(".")
 
                 BotNewPost(config).apply {
 
