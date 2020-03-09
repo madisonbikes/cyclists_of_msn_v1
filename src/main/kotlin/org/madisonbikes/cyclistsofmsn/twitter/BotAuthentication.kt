@@ -5,7 +5,7 @@ import twitter4j.TwitterFactory
 import twitter4j.auth.AccessToken
 import java.io.File
 
-class BotAuthentication(private val configuration: Configuration) {
+class BotAuthentication(private val configuration: TwitterConfiguration) {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
@@ -13,7 +13,7 @@ class BotAuthentication(private val configuration: Configuration) {
                 "Require a single argument of properties file"
             }
             val bot = BotAuthentication(
-                Configuration(File(args[0]))
+                TwitterConfiguration(File(args[0]))
             )
             bot.register()
         }
@@ -50,7 +50,7 @@ class BotAuthentication(private val configuration: Configuration) {
     }
 
     private fun printAccessToken(accessToken: AccessToken) {
-        println("${Configuration.PROP_ACCESS_TOKEN}=${accessToken.token}")
-        println("${Configuration.PROP_ACCESS_TOKEN_SECRET}=${accessToken.tokenSecret}")
+        println("${TwitterConfiguration.PROP_ACCESS_TOKEN}=${accessToken.token}")
+        println("${TwitterConfiguration.PROP_ACCESS_TOKEN_SECRET}=${accessToken.tokenSecret}")
     }
 }

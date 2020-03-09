@@ -1,10 +1,11 @@
-package org.madisonbikes.cyclistsofmsn.twitter
+package org.madisonbikes.cyclistsofmsn.photos
 
 import okio.buffer
 import okio.sink
 import okio.source
+import org.madisonbikes.cyclistsofmsn.common.Json
 
-class PostHistory(private val configuration: Configuration) {
+class PostHistory(private val configuration: PhotoConfiguration) {
     private var posts: List<PhotoPost> = emptyList()
 
     init {
@@ -23,6 +24,11 @@ class PostHistory(private val configuration: Configuration) {
     }
 
     fun store() {
+        if (configuration.dryRun) {
+            println("skipped writing posts db -- dryrun mode")
+            return
+        }
+
         configuration.postsDatabaseFile.sink().buffer().use {
             Json.photoPostListAdapter
                 .indent("  ")

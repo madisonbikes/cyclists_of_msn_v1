@@ -1,67 +1,83 @@
 package org.madisonbikes.cyclistsofmsn.twitter
 
+import net.sourceforge.argparse4j.ArgumentParsers
+import net.sourceforge.argparse4j.impl.Arguments
+import net.sourceforge.argparse4j.inf.ArgumentParserException
+import org.madisonbikes.cyclistsofmsn.common.RandomDelay
+import org.madisonbikes.cyclistsofmsn.photos.*
 import twitter4j.StatusUpdate
 import twitter4j.TwitterFactory
 import twitter4j.auth.AccessToken
 import java.io.File
-import java.lang.IllegalStateException
 import java.util.*
-import java.util.concurrent.TimeUnit
-import kotlin.random.Random
 
-class BotNewPost(private val configuration: Configuration) {
+class BotNewPost(private val configuration: TwitterConfiguration) {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            require(args.size == 1) {
-                "Must supply configuration file argument"
-            }
-            BotNewPost(
-                Configuration(
-                    File(args[0])
-                )
-            ).apply {
-                randomDelay()
+            val argumentParser = ArgumentParsers.newFor("BotNewPost")
+                .fromFilePrefix("@")
+                .build()
+                .defaultHelp(true)
+                .description("Post a new item from the bot")
 
-                val randomPhoto = selectRandomPhoto()
-                println("Selected $randomPhoto")
-                println("resizing...")
-                val resizedPhoto = buildResizedPhoto(randomPhoto)
-                println("posting...")
-                post(resizedPhoto)
-                println("done.")
+            argumentParser.addArgument("-c", "--config")
+                .required(true)
+                .type(Arguments.fileType().verifyCanRead())
+                .help("Configuration file")
+
+            argumentParser.addArgument("--dry-run")
+                .action(Arguments.storeTrue())
+                .help("Dry run, doesn't change anything or post anything.")
+
+            argumentParser.addArgument("--random-delay")
+                .type(Long::class.java)
+                .setDefault(0L)
+                .help("Apply a random delay between zero and the supplied value in seconds before posting occurs")
+
+            argumentParser.addArgument("--minimum-repost-interval")
+                .type(Int::class.java)
+                .setDefault(180)
+                .help("Minimum interval (in days lapsed) before a photo can be reposted")
+
+            argumentParser.addArgument("--seasonality-window")
+                .type(Int::class.java)
+                .setDefault(30)
+                .help("Size of window (in days on either side of current) that we will search for photos")
+
+            try {
+                val namespace = argumentParser.parseArgs(args)
+                val config = TwitterConfiguration(namespace.get("config"))
+                config.randomDelay = namespace.getLong("random_delay")
+                config.dryRun = namespace.getBoolean("dry_run")
+                config.seasonalityWindow = namespace.get("seasonality_window")
+                config.minimumRepostInterval = namespace.get("minimum_repost_interval")
+
+                BotNewPost(config).apply {
+
+                    RandomDelay.delay(configuration)
+
+                    val randomPhoto = selectRandomPhoto()
+                    println("Selected $randomPhoto")
+                    println("resizing...")
+                    val resizedPhoto = buildResizedPhoto(randomPhoto)
+                    val currentDate = Date()
+                    println("posting $randomPhoto at $currentDate...")
+                    post(resizedPhoto)
+                    println("success.")
+                }
+            } catch (e: ArgumentParserException) {
+                argumentParser.handleError(e)
             }
         }
     }
 
     private val postHistory = PostHistory(configuration)
 
-    fun randomDelay() {
-        if(configuration.postRandomDelay > 0L) {
-            val randomDelay = Random.nextLong(configuration.postRandomDelay)
-            println("Sleeping for $randomDelay seconds out of possible ${configuration.postRandomDelay}")
-            Thread.sleep(TimeUnit.SECONDS.toMillis(randomDelay))
-        }
-    }
-
     fun buildResizedPhoto(input: File): File {
         val tempPicture = File.createTempFile("cyclistsofmadison", ".${input.extension}")
         tempPicture.deleteOnExit()
-        val args = arrayOf(
-            "convert",
-            input.absolutePath,
-            "-resize",
-            "${Configuration.MAXIMUM_IMAGE_WIDTH}x>",
-            tempPicture.absolutePath
-        )
-        val process = Runtime.getRuntime().exec(args)
-        check(process.waitFor(10, TimeUnit.SECONDS)) {
-            throw Exception("Conversion timed out args=$args")
-        }
-        val exitValue = process.exitValue()
-        check(process.exitValue() == 0) {
-            "Conversion failed, exitValue=$exitValue args=$args"
-        }
+        ResizePhoto.withMaximumWidth(input, tempPicture, TwitterConfiguration.MAXIMUM_IMAGE_WIDTH)
         return tempPicture
     }
 
@@ -73,34 +89,37 @@ class BotNewPost(private val configuration: Configuration) {
         require(files.isNotEmpty()) {
             "photo directory is empty"
         }
-        val randomIndex = Random.nextInt(files.size)
-
-        val dateThreshold = Date(System.currentTimeMillis() - Configuration.MINIMUM_REPOST_INTERVAL_MILLIS)
-
-        val newFiles = files.copyOfRange(randomIndex, files.size) + files.copyOfRange(0, randomIndex)
-        for (f in newFiles) {
-            val hash = Digest.digestUtils.digestAsHex(f)
-            val matchingPost = postHistory.findPostWithHash(hash)
-            if (matchingPost == null || matchingPost.postDate < dateThreshold) {
-                if(matchingPost != null) {
-                    postHistory.removePost(matchingPost)
-                }
-                val newPost = PhotoPost(f.name, hash, Date())
-                postHistory.addPost(newPost)
-                postHistory.store()
-                return f
-            }
+        val photoSelection = PhotoSelection(postHistory, configuration)
+        val matchingPhoto = photoSelection.findMatchingPhoto(files.toList())
+        requireNotNull(matchingPhoto) {
+            "no photos remaining"
         }
-        throw IllegalStateException("no photos remaining")
+        if (!matchingPhoto.post.notFromStore) {
+            // remove existing post record
+            postHistory.removePost(matchingPhoto.post)
+        }
+        val newPost = PhotoPost(
+            filename = matchingPhoto.post.filename,
+            hash = matchingPhoto.post.hash,
+            postDate = Date()
+        )
+        postHistory.addPost(newPost)
+        postHistory.store()
+        return matchingPhoto.file
     }
 
     fun post(image: File) {
+        if (configuration.dryRun) {
+            println("skipped posting to twitter -- dryrun mode")
+            return
+        }
+
         val twitter = TwitterFactory.getSingleton()
         val token = AccessToken(configuration.token, configuration.tokenSecret)
         twitter.setOAuthConsumer(configuration.consumerApiKey, configuration.consumerApiSecret)
         twitter.oAuthAccessToken = token
 
-        val status = StatusUpdate(Configuration.POST_CONTENT)
+        val status = StatusUpdate(TwitterConfiguration.POST_CONTENT)
         status.media(image)
         twitter.updateStatus(status)
     }

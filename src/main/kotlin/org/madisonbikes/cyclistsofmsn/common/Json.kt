@@ -1,12 +1,14 @@
-package org.madisonbikes.cyclistsofmsn.twitter
+package org.madisonbikes.cyclistsofmsn.common
 
 import com.squareup.moshi.*
 import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import org.jetbrains.annotations.NotNull
+import org.madisonbikes.cyclistsofmsn.photos.PhotoPost
 import java.util.*
 
 object Json {
-    val moshi by lazy {
+    val moshi: Moshi by lazy {
         Moshi.Builder()
             .add(KotlinJsonAdapterFactory())
             .add(Date::class.java, Rfc3339DateJsonAdapter())
