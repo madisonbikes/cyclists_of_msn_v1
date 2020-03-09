@@ -16,9 +16,11 @@ class PhotoSelection(private val postHistory: PostHistory, private val configura
 
         // photos that haven't been posted in the last 180 days (configurable)
         val repostCriteria = RepostCriteria(configuration)
+
         // photos that have never been posted
         val unpostedCriteria = UnpostedCriteria()
-        // photos that meet the seasonality requirements (defaults to
+
+        // photos that meet the seasonality requirements (defaults to 90 day window or 45 days either side of current)
         val seasonalityCriteria = SeasonalityCriteria(configuration)
 
         /// this is the combination of criteria that will be searched, in order
