@@ -13,6 +13,8 @@ import kotlin.math.abs
  * TODO maybe cache the metadata if the lookups take too long, since we can go through the list at least four times
  */
 class SeasonalityCriteria(private val photoConfiguration: PhotoConfiguration) : MatchCriteria {
+    private val calendar by lazy { Calendar.getInstance() }
+
     override fun isSatisfied(candidatePhoto: File, matchingPost: PhotoPost): Boolean {
         if (photoConfiguration.seasonalityWindow == 0) {
             return true
@@ -49,9 +51,8 @@ class SeasonalityCriteria(private val photoConfiguration: PhotoConfiguration) : 
     }
 
     private fun dayOfYear(date: Date): Int {
-        val cal = Calendar.getInstance()
-        cal.time = date
-        return cal.get(Calendar.DAY_OF_YEAR)
+        calendar.time = date
+        return calendar.get(Calendar.DAY_OF_YEAR)
     }
 
     private fun dumpTags(metadata: Metadata) {
