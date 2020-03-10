@@ -4,12 +4,14 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 
 object ResizePhoto {
+    /** resizes and strips the photo of metadata */
     fun withMaximumWidth(input: File, outputFile: File, maximumWidth: Int) {
         val args = arrayOf(
             "convert",
             input.absolutePath,
             "-resize",
             "${maximumWidth}x>",
+            "-strip",
             outputFile.absolutePath
         )
         val process = Runtime.getRuntime().exec(args)
