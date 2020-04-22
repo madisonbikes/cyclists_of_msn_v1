@@ -12,3 +12,4 @@ This bot is designed to post a photo a day to a Twitter account from a pool of p
 ## Usage
 We suggest a starting pool size of around 100 photos, but that is up to you.
 
+TODO
