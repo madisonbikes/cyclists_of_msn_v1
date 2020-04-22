@@ -2,14 +2,21 @@
 Source code for the Twitter bot [Cyclists of Madison](https://twitter.com/cyclists_of_msn) developed by [Madison Bikes](https://madisonbikes.org).
 
 ## Overview
-This bot is designed to post a photo a day to a Twitter account from a pool of photographs. There are several configurable features:
+This bot posts one photo each day to a Twitter account from a pool of photographs. There are several configurable features:
 * It can be run using a simple cron job and setup completely using command line tools.
 * It will do its best to avoid repeating the same photo.
 * It will try to pick photos from around the same time of year as the current date.
-* It has a capability to introduce a random delay so that the post is not made at the same time every day.
+* It can introduce a random delay so that the post doesn't happen at the same time every day.
 * It will strip out any unnecessary image metadata before it is posted, for privacy.
 
+## Requirements
+It is developed using Kotlin and requires a Java runtime. It uses [ImageMagick](https://imagemagick.org/) for some of the image manipulation, so that needs to be pre-installed on whatever server is hosting the repository and running the commands.
+
 ## Usage
+The bot consists of two primary components:
+1. The `BotAuthentication` tool, which helps establish the link between this installed tool and a Twitter account of your choosing.
+2. The `BotNewPost` tool, which chooses a photo from the pool, prepares a post and sends it to Twitter.
+
 We suggest a starting pool size of around 100 photos, but that is up to you.
 
 TODO
