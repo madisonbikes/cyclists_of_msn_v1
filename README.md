@@ -23,10 +23,10 @@ or to use your own Gradle installation:
 ```
 
 ## Installation
-The build artifacts are in the `build/distributions` in `.tar.gz` and `.zip` formats (example: `cyclistsofmadison-0.1-SNAPSHOT.tar.gz`). You can move these to your server and extract them to any location you like. The `bin` directory contains launch scripts for 
+The build artifacts are in the `build/distributions` in `.tar.gz` and `.zip` formats (example: `cyclistsofmadison-0.1-SNAPSHOT.tar.gz`). You can move these to your server and extract them to any location you like. The `bin` directory contains scripts that can be used to execute the two primary tasks.
 
 ## Usage
-The bot consists of two primary components:
+The bot consists of two primary tasks:
 1. The `BotAuthentication` tool, which helps establish the link between this installed tool and a Twitter account of your choosing.
 2. The `BotNewPost` tool, which chooses a photo from the pool, prepares a post and sends it to Twitter.
 
