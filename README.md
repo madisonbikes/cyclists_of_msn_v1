@@ -12,6 +12,19 @@ This bot posts one photo each day to a Twitter account from a pool of photograph
 ## Requirements
 It is developed using Kotlin and requires a Java runtime. It uses [ImageMagick](https://imagemagick.org/) for some of the image manipulation, so that needs to be pre-installed on whatever server is hosting the repository and running the commands.
 
+## Build
+To build, clone the repository and execute this command (if you trust our included [Gradle](https://gradle.org) wrapper:
+```
+# ./gradlew assemble
+```
+or to use your own Gradle installation:
+```
+# gradle assemble
+```
+
+## Installation
+The build artifacts are in the `build/distributions` in `.tar.gz` and `.zip` formats (example: `cyclistsofmadison-0.1-SNAPSHOT.tar.gz`). You can move these to your server and extract them to any location you like. The `bin` directory contains launch scripts for 
+
 ## Usage
 The bot consists of two primary components:
 1. The `BotAuthentication` tool, which helps establish the link between this installed tool and a Twitter account of your choosing.
@@ -19,4 +32,5 @@ The bot consists of two primary components:
 
 We suggest a starting pool size of around 100 photos, but that is up to you.
 
-TODO
+## Credits
+Harald Kliems (harald@madisonbikes.org) had the original idea and requirements to build this, and Ben Sandee (ben@madisonbikes.org) did the initial coding.
