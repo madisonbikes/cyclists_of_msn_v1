@@ -13,7 +13,7 @@ This bot posts one photo each day to a Twitter account from a pool of photograph
 It is developed using Kotlin and requires a Java runtime. It uses [ImageMagick](https://imagemagick.org/) for some of the image manipulation, so that needs to be pre-installed on whatever server is hosting the repository and running the commands.
 
 ## Build
-To build, clone the repository and execute this command (if you trust our included [Gradle](https://gradle.org) wrapper:
+To build, clone the repository and execute this command (if you trust our included [Gradle](https://gradle.org) wrapper):
 ```
 # ./gradlew assemble
 ```
@@ -33,4 +33,4 @@ The bot consists of two primary components:
 We suggest a starting pool size of around 100 photos, but that is up to you.
 
 ## Credits
-Harald Kliems (harald@madisonbikes.org) had the original idea and requirements to build this, and Ben Sandee (ben@madisonbikes.org) did the initial coding.
+Harald Kliems (harald@madisonbikes.org) had the original idea and requirements to build this and Ben Sandee (ben@madisonbikes.org) did the initial coding.
