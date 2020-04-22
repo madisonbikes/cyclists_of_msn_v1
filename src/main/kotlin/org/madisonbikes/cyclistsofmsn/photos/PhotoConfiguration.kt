@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Madison Bikes, Inc.
+ */
+
 package org.madisonbikes.cyclistsofmsn.photos
 
 import org.madisonbikes.cyclistsofmsn.common.CommonConfiguration

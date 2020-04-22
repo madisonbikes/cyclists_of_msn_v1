@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Madison Bikes, Inc.
+ */
+
 package org.madisonbikes.cyclistsofmsn.twitter
 
 import net.sourceforge.argparse4j.ArgumentParsers
