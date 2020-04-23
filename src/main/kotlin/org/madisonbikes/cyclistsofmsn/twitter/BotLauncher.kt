@@ -16,7 +16,7 @@ class BotLauncher {
                 .build()
 
             try {
-                val commands = arrayOf(GenerateConfigCommand(), RegisterCommand(), NewPostCommand())
+                val commands = arrayOf(RegisterCommand(), NewPostCommand())
                 commands.forEach {
                     val subparser = it.prepareCommandParser(argumentParser.addSubparsers())
                     subparser.setDefault("func", it)

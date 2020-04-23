@@ -20,16 +20,28 @@ class RegisterCommand : BotCommand {
             defaultHelp(true)
             description("Setup the link to your Twitter bot")
 
+            addArgument("consumer-api-key")
+                .help("Twitter Consumer API key")
+                .required(true)
+
+            addArgument("consumer-api-secret-key")
+                .help("Twitter Consumer API secret key")
+                .required(true)
+
             TwitterConfiguration.registerArguments(this)
-                .type(Arguments.fileType().verifyCanWrite())
+                .type(Arguments.fileType().verifyCanCreate().verifyNotExists())
         }
     }
 
     override fun launch(arguments: Namespace) {
-        val config = TwitterConfiguration.fromArguments(arguments)
+        val configuration = TwitterConfiguration(
+            consumerApiKey = arguments.getString("consumer_api_key"),
+            consumerApiSecret = arguments.getString("consumer_api_secret_key")
+        )
+
         val configurationFile = TwitterConfiguration.getConfigurationFile(arguments)
 
-        RegisterImpl(config).apply {
+        RegisterImpl(configuration).apply {
             register()
 
             writeConfiguration(configurationFile)
