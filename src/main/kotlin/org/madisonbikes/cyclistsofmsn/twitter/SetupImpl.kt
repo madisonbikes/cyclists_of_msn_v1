@@ -7,23 +7,9 @@ package org.madisonbikes.cyclistsofmsn.twitter
 import twitter4j.TwitterException
 import twitter4j.TwitterFactory
 import twitter4j.auth.AccessToken
-import java.io.File
 
-class BotAuthentication(private val configuration: TwitterConfiguration) {
-    companion object {
-        @JvmStatic
-        fun main(args: Array<String>) {
-            require(args.size == 1) {
-                "Require a single argument of properties file"
-            }
-            val bot = BotAuthentication(
-                TwitterConfiguration(File(args[0]))
-            )
-            bot.register()
-        }
-    }
-
-    private fun register() {
+class SetupImpl(private val configuration: TwitterConfiguration) {
+    fun register() {
         val twitter = TwitterFactory.getSingleton()
         twitter.setOAuthConsumer(configuration.consumerApiKey, configuration.consumerApiSecret)
         val requestToken = twitter.oAuthRequestToken

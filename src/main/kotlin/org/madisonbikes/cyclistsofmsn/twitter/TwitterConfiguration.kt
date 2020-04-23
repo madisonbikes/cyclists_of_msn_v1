@@ -4,11 +4,13 @@
 
 package org.madisonbikes.cyclistsofmsn.twitter
 
+import net.sourceforge.argparse4j.impl.Arguments
+import net.sourceforge.argparse4j.inf.Argument
+import net.sourceforge.argparse4j.inf.Subparser
 import org.madisonbikes.cyclistsofmsn.photos.PhotoConfiguration
 import java.io.File
 import java.io.FileInputStream
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 class TwitterConfiguration(propertiesFile: File) : PhotoConfiguration {
     companion object {
@@ -19,6 +21,13 @@ class TwitterConfiguration(propertiesFile: File) : PhotoConfiguration {
 
         const val MAXIMUM_IMAGE_WIDTH = 1600
         const val POST_CONTENT = "#cyclistsofmadison"
+
+        fun addTwitterConfiguration(subparser: Subparser): Argument {
+            return subparser.addArgument("-c", "--twitter-config")
+                .required(true)
+                .type(Arguments.fileType().verifyCanRead())
+                .help("Configuration file containing Twitter tokens and keys")
+        }
     }
 
     private val props = Properties()

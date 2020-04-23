@@ -4,32 +4,29 @@
 
 package org.madisonbikes.cyclistsofmsn.twitter
 
+import net.sourceforge.argparse4j.ArgumentParsers
+import net.sourceforge.argparse4j.inf.ArgumentParserException
+
 class BotLauncher {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            if (args.isEmpty()) {
-                showError()
-                return
-            } else {
-                val trimmedArgs = mutableListOf(*args)
-                trimmedArgs.removeAt(0)
-                when (args[0]) {
-                    "BotNewPost" -> {
-                        BotNewPost.main(trimmedArgs.toTypedArray())
-                    }
-                    "BotAuthentication" -> {
-                        BotAuthentication.main(trimmedArgs.toTypedArray())
-                    }
-                    else -> {
-                        showError()
-                    }
-                }
-            }
-        }
+            val argumentParser = ArgumentParsers.newFor("cyclistsofmadisonbot")
+                .fromFilePrefix("@")
+                .build()
 
-        private fun showError() {
-            System.err.println("Supported tasks are BotNewPost and BotAuthentication")
+            try {
+                val commands = arrayOf(SetupCommand(), NewPostCommand())
+                commands.forEach {
+                    val subparser = it.prepareCommandParser(argumentParser.addSubparsers())
+                    subparser.setDefault("func", it)
+                }
+                val namespace = argumentParser.parseArgs(args)
+                val func = namespace.get<BotCommand>("func")
+                func.launch(namespace)
+            } catch (e: ArgumentParserException) {
+                argumentParser.handleError(e)
+            }
         }
     }
 }
