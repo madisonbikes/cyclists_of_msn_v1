@@ -9,7 +9,6 @@ import net.sourceforge.argparse4j.inf.Namespace
 import net.sourceforge.argparse4j.inf.Subparser
 import net.sourceforge.argparse4j.inf.Subparsers
 import org.madisonbikes.cyclistsofmsn.common.RandomDelay
-import java.io.File
 import java.util.*
 
 class NewPostCommand : BotCommand {
@@ -19,45 +18,19 @@ class NewPostCommand : BotCommand {
             defaultHelp(true)
             description("Post a new item from the bot")
 
-            TwitterConfiguration.addTwitterConfiguration(this)
-
-            addArgument("--base-directory")
-                .type(Arguments.fileType().verifyIsDirectory())
-                .help("Base directory for photos and posts database. Defaults to cwd.")
-
-            addArgument("--dry-run")
-                .action(Arguments.storeTrue())
-                .help("Dry run, doesn't change anything in posts database or post anything to twitter.")
-
-            addArgument("--random-delay")
-                .type(Long::class.java)
-                .setDefault(0L)
-                .help("Apply a random delay between zero and the supplied value in seconds before posting occurs")
-
-            addArgument("--minimum-repost-interval")
-                .type(Int::class.java)
-                .setDefault(180)
-                .help("Target minimum interval (in days) before a photo will be reposted")
-
-            addArgument("--seasonality-window")
-                .type(Int::class.java)
-                .setDefault(45)
-                .help("Size of window (in days on either side of current date) that we will search for photos that are in-season")
+            TwitterConfiguration.registerArguments(this)
+                .type(Arguments.fileType().verifyCanRead())
+            NewPostConfiguration.registerArguments(this)
         }
     }
 
     override fun launch(arguments: Namespace) {
+        val twitterConfiguration = TwitterConfiguration.fromArguments(arguments)
+        val newPostConfiguration = NewPostConfiguration(arguments)
 
-        val config = TwitterConfiguration(arguments.get("config"))
-        config.randomDelay = arguments.getLong("random_delay")
-        config.dryRun = arguments.getBoolean("dry_run")
-        config.seasonalityWindow = arguments.get("seasonality_window")
-        config.minimumRepostInterval = arguments.get("minimum_repost_interval")
-        config.baseDirectory = arguments.get<File?>("base_directory") ?: File(".")
+        NewPostImpl(twitterConfiguration, newPostConfiguration).apply {
 
-        NewPostImpl(config).apply {
-
-            RandomDelay.delay(configuration)
+            RandomDelay.delay(newPostConfiguration)
 
             val randomPhoto = selectRandomPhoto()
             println("Selected $randomPhoto")

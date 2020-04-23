@@ -4,54 +4,46 @@
 
 package org.madisonbikes.cyclistsofmsn.twitter
 
-import net.sourceforge.argparse4j.impl.Arguments
+import com.squareup.moshi.JsonClass
 import net.sourceforge.argparse4j.inf.Argument
+import net.sourceforge.argparse4j.inf.Namespace
 import net.sourceforge.argparse4j.inf.Subparser
-import org.madisonbikes.cyclistsofmsn.photos.PhotoConfiguration
+import okio.buffer
+import okio.source
+import org.madisonbikes.cyclistsofmsn.common.Json
 import java.io.File
-import java.io.FileInputStream
-import java.util.*
 
-class TwitterConfiguration(propertiesFile: File) : PhotoConfiguration {
+/** contains various Twitter configuration details that can be serialized into JSON */
+@JsonClass(generateAdapter = true)
+data class TwitterConfiguration(
+    val consumerApiKey: String,
+    val consumerApiSecret: String,
+    val accessToken: String? = null,
+    val accessTokenSecret: String? = null
+)  {
     companion object {
-        const val PROP_CONSUMER_API_KEY = "cyclistsOfMadison.twitter.consumerApiKey"
-        const val PROP_CONSUMER_API_SECRET = "cyclistsOfMadison.twitter.consumerApiSecretKey"
-        const val PROP_ACCESS_TOKEN = "cyclistsOfMadison.twitter.accessToken"
-        const val PROP_ACCESS_TOKEN_SECRET = "cyclistsOfMadison.twitter.accessTokenSecret"
-
-        const val MAXIMUM_IMAGE_WIDTH = 1600
-        const val POST_CONTENT = "#cyclistsofmadison"
-
-        fun addTwitterConfiguration(subparser: Subparser): Argument {
+        fun registerArguments(subparser: Subparser): Argument {
             return subparser.addArgument("-c", "--twitter-config")
                 .required(true)
-                .type(Arguments.fileType().verifyCanRead())
-                .help("Configuration file containing Twitter tokens and keys")
+                .help("JSON configuration file containing Twitter tokens and keys")
+        }
+
+        fun getConfigurationFile(namespace: Namespace): File {
+            return requireNotNull(namespace.get<File?>("twitter_config")) {
+                "should always be supplied"
+            }
+        }
+
+        private fun fromJsonFile(file: File): TwitterConfiguration? {
+            file.source().buffer().use {
+                return Json.twitterConfigurationAdapter.fromJson(it)
+            }
+        }
+
+        fun fromArguments(namespace: Namespace): TwitterConfiguration {
+            return requireNotNull(fromJsonFile(getConfigurationFile(namespace))) {
+                "configuration should be supplied"
+            }
         }
     }
-
-    private val props = Properties()
-
-    val consumerApiKey by lazy { requireNotNull(props.getProperty(PROP_CONSUMER_API_KEY)) }
-    val consumerApiSecret by lazy { requireNotNull(props.getProperty(PROP_CONSUMER_API_SECRET)) }
-    val token by lazy { requireNotNull(props.getProperty(PROP_ACCESS_TOKEN)) }
-    val tokenSecret by lazy { requireNotNull(props.getProperty(PROP_ACCESS_TOKEN_SECRET)) }
-
-    lateinit var baseDirectory: File
-
-    override val photoDirectory by lazy { File(baseDirectory, "photos") }
-    override val postsDatabaseFile by lazy { File(baseDirectory, "cyclistsOfMadisonPosts.json") }
-
-    // ATTENTION THESE DEFAULTS ARE OVERRIDDEN BY THE COMMAND LINE ARGUMENT CLASS!!
-    override var randomDelay = 0L
-    override var dryRun = false
-    override var seasonalityWindow = 0
-    override var minimumRepostInterval = 0
-
-    init {
-        FileInputStream(propertiesFile).use {
-            props.load(it)
-        }
-    }
-
 }
