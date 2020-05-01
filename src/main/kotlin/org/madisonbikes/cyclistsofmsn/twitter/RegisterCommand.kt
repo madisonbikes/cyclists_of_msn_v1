@@ -18,7 +18,7 @@ class RegisterCommand : BotCommand {
     override fun prepareCommandParser(subparsers: Subparsers): Subparser {
         return subparsers.addParser("register").apply {
             defaultHelp(true)
-            description("Setup the link to your Twitter bot")
+            description("Setup the link to your Twitter bot. Creates a JSON configuration file after complete.")
 
             addArgument("consumer-api-key")
                 .help("Twitter Consumer API key")
@@ -30,6 +30,7 @@ class RegisterCommand : BotCommand {
 
             TwitterConfiguration.registerArguments(this)
                 .type(Arguments.fileType().verifyCanCreate().verifyNotExists())
+                .help("Output JSON configuration file containing Twitter tokens and keys")
         }
     }
 
