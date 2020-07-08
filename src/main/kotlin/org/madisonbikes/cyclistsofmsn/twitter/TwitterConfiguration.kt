@@ -29,7 +29,7 @@ data class TwitterConfiguration(
         }
 
         fun getConfigurationFile(namespace: Namespace): File {
-            return requireNotNull(namespace.get<File?>("twitter_config")) {
+            return requireNotNull(namespace.get("twitter_config")) {
                 "should always be supplied"
             }
         }
