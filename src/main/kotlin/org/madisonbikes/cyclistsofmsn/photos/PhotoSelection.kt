@@ -12,8 +12,6 @@ class PhotoSelection(private val postHistory: PostHistory, private val configura
     class MatchingPhotoRecord(val file: File, val post: PhotoPost)
 
     fun findMatchingPhoto(files: List<File>): MatchingPhotoRecord? {
-        val randomIndex = Random.nextInt(files.size)
-
         val hashMatcher = HashMatcher(postHistory)
 
         // these are different criteria that can be combined
@@ -46,10 +44,12 @@ class PhotoSelection(private val postHistory: PostHistory, private val configura
             emptyList()
         )
 
-        // start the photo search at a random place, build this list different each run
+        // shuffle the photo list so that we have a different look at the photos each time we run
         // ensures we aren't following some sort of filesystem ordering/sorting by accident
-        val filesArray = files.toTypedArray()
-        val orderedPhotoList = filesArray.copyOfRange(randomIndex, files.size) + filesArray.copyOfRange(0, randomIndex)
+        val orderedPhotoList = files.toTypedArray()
+            .toMutableList()
+            .shuffled(Random.Default)
+            .toList()
 
         // run through complete repo for each criteria list in order
         criteriaListRepository.forEach { activeCriteriaList ->
