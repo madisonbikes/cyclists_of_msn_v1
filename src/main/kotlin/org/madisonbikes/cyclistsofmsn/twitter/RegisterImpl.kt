@@ -55,7 +55,9 @@ class RegisterImpl(private val configuration: TwitterConfiguration) {
             configuration.copy(accessToken = at.token, accessTokenSecret = at.tokenSecret)
         println("Writing new configuration to $file...")
         file.sink().buffer().use {
-            Json.twitterConfigurationAdapter.toJson(it, newConfiguration)
+            Json.twitterConfigurationAdapter
+                .indent("  ")
+                .toJson(it, newConfiguration)
         }
         print("done.")
     }
