@@ -1,5 +1,5 @@
 # Cyclists of Madison
-Source code for the Twitter bot [Cyclists of Madison](https://twitter.com/cyclists_of_msn) developed by [Madison Bikes](https://madisonbikes.org).
+Source code for the original Twitter bot [Cyclists of Madison](https://twitter.com/cyclists_of_msn) developed by [Madison Bikes](https://madisonbikes.org). THIS IS NO LONGER MAINTAINED OR USED AND HAS BEEN SUPERCEDED BY [this](https://github.com/madisonbikes/cyclistsofmsn-backend) and [this](https://github.com/madisonbikes/cyclistsofmsn-client).
 
 ## Overview
 This bot posts one photo each day to a Twitter account from a pool of photographs. There are several configurable features:
